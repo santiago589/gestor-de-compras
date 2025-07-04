@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Compras</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4caf50" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --verde: #4caf50;
+      --verde-oscuro: #388e3c;
+      --fondo: #f8f8f8;
+      --sombra: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--fondo);
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      color: #000;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: var(--verde-oscuro);
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: var(--sombra);
+      transition: all 0.3s ease;
+    }
+
+    button {
+      background-color: var(--verde);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: var(--verde-oscuro);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: white;
+      margin: 8px auto;
+      padding: 12px;
+      width: 95%;
+      max-width: 400px;
+      border-radius: 12px;
+      box-shadow: var(--sombra);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    li:hover {
+      transform: scale(1.01);
+    }
+
+    .item-info {
+      flex: 1;
+      text-align: left;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .item-info.comprado {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .borrar {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      min-width: 36px;
+    }
+
+    .borrar:hover {
+      background-color: darkred;
+    }
+
+    #total {
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 20px;
+      color: #333;
+    }
+
+    #descargar, #ordenar {
+      margin-top: 15px;
+      background-color: #1e7e34;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      box-shadow: var(--sombra);
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    #descargar:hover, #ordenar:hover {
+      background-color: #155724;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+
+      input, button, li {
+        background-color: #1e1e1e;
+        color: #fff;
+        border-color: #444;
+      }
+
+      .borrar {
+        background-color: #ff5555;
+      }
+
+      .borrar:hover {
+        background-color: #cc0000;
+      }
+
+      #descargar, #ordenar {
+        background-color: #006400;
+      }
+
+      #descargar:hover, #ordenar:hover {
+        background-color: #004d00;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Lista Suprema de Compras</h1>
+
+  <input type="text" id="itemInput" placeholder="Producto (ej: Pan)" />
+  <input type="number" id="cantidadInput" placeholder="Cantidad (ej: 2)" />
+  <input type="number" id="precioInput" placeholder="Precio unitario (ej: 1200)" />
+  <button onclick="agregarItem()">Agregar</button>
+  <br/>
+  <button id="ordenar" onclick="ordenarPorPrecio()">🔃 Ordenar por precio</button>
+
+  <ul id="lista"></ul>
+
+  <div id="total">Total: $0</div>
+
+  <button id="descargar" onclick="descargarExcel()">📥 Descargar Excel</button>
+
+  <script>
+    let total = 0;
+    let items = [];
+    let ordenAscendente = true;
+
+    window.onload = function () {
+      const guardado = localStorage.getItem("listaDeCompras");
+      if (guardado) {
+        items = JSON.parse(guardado);
+        items.forEach(item => {
+          mostrarItem(item);
+          total += item.precioTotal;
+        });
+        actualizarTotal();
+      }
+    };
+
+    function guardarLista() {
+      localStorage.setItem("listaDeCompras", JSON.stringify(items));
+    }
+
+    function agregarItem() {
+      const producto = document.getElementById("itemInput").value.trim();
+      const cantidad = parseInt(document.getElementById("cantidadInput").value.trim());
+      const precioUnitario = parseFloat(document.getElementById("precioInput").value.trim());
+
+      if (!producto || isNaN(cantidad) || isNaN(precioUnitario)) {
+        alert("Completa producto, cantidad y precio válido.");
+        return;
+      }
+
+      const precioTotal = precioUnitario * cantidad;
+      const nuevoItem = { producto, cantidad, precioUnitario, precioTotal, comprado: false };
+
+      items.push(nuevoItem);
+      guardarLista();
+      mostrarItem(nuevoItem);
+
+      total += precioTotal;
+      actualizarTotal();
+
+      document.getElementById("itemInput").value = "";
+      document.getElementById("cantidadInput").value = "";
+      document.getElementById("precioInput").value = "";
+      document.getElementById("itemInput").focus();
+    }
+
+    function mostrarItem(item) {
+      const li = document.createElement("li");
+
+      const info = document.createElement("div");
+      info.className = "item-info";
+      info.innerHTML = `${item.producto} × ${item.cantidad} — <strong>$${item.precioTotal}</strong>`;
+      if (item.comprado) info.classList.add("comprado");
+
+      info.onclick = () => {
+        item.comprado = !item.comprado;
+        info.classList.toggle("comprado");
+        guardarLista();
+      };
+
+      const btn = document.createElement("button");
+      btn.className = "borrar";
+      btn.textContent = "x";
+      btn.onclick = () => borrarItem(item, li);
+
+      li.appendChild(info);
+      li.appendChild(btn);
+      document.getElementById("lista").appendChild(li);
+    }
+
+    function borrarItem(item, elemento) {
+      total -= item.precioTotal;
+      actualizarTotal();
+      items = items.filter(i => i !== item);
+      guardarLista();
+      elemento.remove();
+    }
+
+    function actualizarTotal() {
+      document.getElementById("total").innerText = `Total: $${total.toFixed(0)}`;
+    }
+
+    function descargarExcel() {
+      if (items.length === 0) {
+        alert("Lista vacía");
+        return;
+      }
+
+      let csv = "Producto;Cantidad;Precio Unitario;Precio Total\n";
+      items.forEach(item => {
+        csv += `${item.producto};${item.cantidad};${item.precioUnitario};${item.precioTotal}\n`;
+      });
+
+      csv += "\n\nTotal;;;" + total + "\n";
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "lista_de_compras.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function ordenarPorPrecio() {
+      items.sort((a, b) => ordenAscendente ? a.precioTotal - b.precioTotal : b.precioTotal - a.precioTotal);
+      ordenAscendente = !ordenAscendente;
+      document.getElementById("lista").innerHTML = "";
+      total = 0;
+      items.forEach(item => {
+        mostrarItem(item);
+        total += item.precioTotal;
+      });
+      actualizarTotal();
+      guardarLista();
+    }
+
+    document.getElementById("itemInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("cantidadInput").focus();
+      }
+    });
+
+    document.getElementById("cantidadInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("precioInput").focus();
+      }
+    });
+
+    document.getElementById("precioInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        agregarItem();
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('✅ Service Worker registrado'))
+        .catch(err => console.error('❌ Error registrando Service Worker:', err));
+    }
+  </script>
+</body>
+</html>

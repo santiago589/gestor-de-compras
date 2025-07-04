@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Compras</title>
+
+  <!-- Manifest para PWA -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      text-align: center;
+      padding: 40px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: #fff;
+      margin: 5px auto;
+      padding: 10px;
+      width: 70%;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .borrar {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .borrar:hover {
+      background-color: darkred;
+    }
+
+    #total {
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    #descargar {
+      margin-top: 20px;
+      background-color: green;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #descargar:hover {
+      background-color: darkgreen;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Lista de Compras</h1>
+
+  <input type="text" id="itemInput" placeholder="Producto (ej: Pan)" />
+  <input type="number" id="precioInput" placeholder="Precio (ej: 1200)" />
+  <button onclick="agregarItem()">Agregar</button>
+
+  <ul id="lista"></ul>
+
+  <div id="total">Total: $0</div>
+
+  <button id="descargar" onclick="descargarExcel()">📥 Descargar Excel</button>
+
+  <script>
+    let total = 0;
+    const items = [];
+
+    function agregarItem() {
+      const itemInput = document.getElementById("itemInput");
+      const precioInput = document.getElementById("precioInput");
+
+      const producto = itemInput.value.trim();
+      const precio = parseFloat(precioInput.value.trim());
+
+      if (producto === "" || isNaN(precio)) {
+        alert("Por favor, ingresa un producto y un precio válido.");
+        return;
+      }
+
+      total += precio;
+      actualizarTotal();
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <div class="item-info">
+          ${producto} — <strong>$${precio.toFixed(0)}</strong>
+        </div>
+        <button class="borrar" onclick="borrarItem(this, ${precio}, '${producto}')">X</button>
+      `;
+
+      document.getElementById("lista").appendChild(li);
+      items.push({ producto, precio });
+
+      itemInput.value = "";
+      precioInput.value = "";
+      itemInput.focus();
+    }
+
+    function borrarItem(boton, precio, producto) {
+      boton.parentElement.remove();
+      total -= precio;
+      actualizarTotal();
+
+      const index = items.findIndex(i => i.producto === producto && i.precio === precio);
+      if (index !== -1) {
+        items.splice(index, 1);
+      }
+    }
+
+    function actualizarTotal() {
+      document.getElementById("total").innerText = `Total: $${total.toFixed(0)}`;
+    }
+
+    function descargarExcel() {
+      if (items.length === 0) {
+        alert("La lista está vacía. ¡Agrega algo primero!");
+        return;
+      }
+
+      let csv = "Producto;Precio\n";
+      items.forEach(item => {
+        csv += `${item.producto};${item.precio}\n`;
+      });
+
+      csv += "\n\nTotal;" + total + "\n";
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "lista_de_compras.csv");
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Enter para agregar ítems
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        agregarItem();
+      }
+    });
+
+    // Registro del Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('Service Worker registrado'))
+        .catch(err => console.error('Error registrando Service Worker:', err));
+    }
+  </script>
+</body>
+</html>
+
+
+

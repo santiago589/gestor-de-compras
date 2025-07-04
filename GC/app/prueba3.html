@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>GESTOR DE COMPRAS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      text-align: center;
+      padding: 40px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: #fff;
+      margin: 5px auto;
+      padding: 10px;
+      width: 70%;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info {
+      flex: 1;
+      text-align: left;
+    }
+
+    .borrar {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .borrar:hover {
+      background-color: darkred;
+    }
+
+    #total {
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🛒 Lista de Compras</h1>
+
+  <input type="text" id="itemInput" placeholder="Producto (ej: Pan)" />
+  <input type="number" id="precioInput" placeholder="Precio (ej: 1200)" />
+  <button onclick="agregarItem()">Agregar</button>
+
+  <ul id="lista"></ul>
+
+  <div id="total">Total: $0</div>
+
+  <script>
+    let total = 0;
+
+    function agregarItem() {
+      const itemInput = document.getElementById("itemInput");
+      const precioInput = document.getElementById("precioInput");
+
+      const producto = itemInput.value.trim();
+      const precio = parseFloat(precioInput.value.trim());
+
+      if (producto === "" || isNaN(precio)) {
+        alert("Por favor, ingresa un producto y un precio válido.");
+        return;
+      }
+
+      total += precio;
+      actualizarTotal();
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <div class="item-info">
+          ${producto} — <strong>$${precio.toFixed(0)}</strong>
+        </div>
+        <button class="borrar" onclick="borrarItem(this, ${precio})">X</button>
+      `;
+
+      document.getElementById("lista").appendChild(li);
+
+      itemInput.value = "";
+      precioInput.value = "";
+      itemInput.focus();
+    }
+
+    function borrarItem(boton, precio) {
+      boton.parentElement.remove();
+      total -= precio;
+      actualizarTotal();
+    }
+
+    function actualizarTotal() {
+      document.getElementById("total").innerText = `Total: $${total.toFixed(0)}`;
+    }
+  </script>
+
+</body>
+</html>
