@@ -5,161 +5,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lista de Compras</title>
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#4caf50" />
+  <meta name="theme-color" content="#ffffff" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --verde: #4caf50;
-      --verde-oscuro: #388e3c;
-      --fondo: #f8f8f8;
-      --sombra: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+<style>
+  :root {
+    --verde: #4caf50;
+    --verde-oscuro: #2e7d32;
+    --fondo: #ffffff;
+    --sombra: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--fondo);
-      text-align: center;
-      padding: 20px;
-      margin: 0;
-      color: #000;
-    }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--fondo);
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+    color: #000000;
+  }
 
-    h1 {
-      font-size: 26px;
-      color: var(--verde-oscuro);
-      margin-bottom: 20px;
-    }
+  h1 {
+    font-size: 26px;
+    color: var(--verde-oscuro);
+    margin-bottom: 20px;
+  }
 
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px;
-      width: 90%;
-      max-width: 300px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      box-shadow: var(--sombra);
-      transition: all 0.3s ease;
-    }
+  input, button {
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px;
+    width: 90%;
+    max-width: 300px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: var(--sombra);
+    transition: all 0.3s ease;
+  }
 
-    button {
-      background-color: var(--verde);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
+  button {
+    background-color: var(--verde);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
 
-    button:hover {
-      background-color: var(--verde-oscuro);
-    }
+  button:hover {
+    background-color: var(--verde-oscuro);
+  }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 20px;
-    }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+  }
 
-    li {
-      background: white;
-      margin: 8px auto;
-      padding: 12px;
-      width: 95%;
-      max-width: 400px;
-      border-radius: 12px;
-      box-shadow: var(--sombra);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
+  li {
+    background: white;
+    margin: 8px auto;
+    padding: 12px;
+    width: 95%;
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: var(--sombra);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
 
-    li:hover {
-      transform: scale(1.01);
-    }
+  li:hover {
+    transform: scale(1.01);
+  }
 
-    .item-info {
-      flex: 1;
-      text-align: left;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  .item-info {
+    flex: 1;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+  }
 
-    .item-info.comprado {
-      text-decoration: line-through;
-      opacity: 0.6;
-    }
+  .item-info.comprado {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
 
-    .borrar {
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 4px 10px;
-      font-size: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      min-width: 36px;
-    }
+  .borrar {
+    background-color: red;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--sombra);
+    padding: 0;
+  }
 
-    .borrar:hover {
-      background-color: darkred;
-    }
+  #total {
+    margin-top: 30px;
+    font-weight: bold;
+    font-size: 26px;
+    color: var(--verde-oscuro);
+    border: 2px solid var(--verde-oscuro);
+    padding: 12px 20px;
+    display: inline-block;
+    border-radius: 12px;
+    background-color: #f1fff3;
+    box-shadow: var(--sombra);
+  }
 
-    #total {
-      margin-top: 25px;
-      font-weight: bold;
-      font-size: 20px;
-      color: #333;
-    }
+  #descargar, #ordenar {
+    margin-top: 15px;
+    background-color: #1e7e34;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 10px;
+    box-shadow: var(--sombra);
+    cursor: pointer;
+    display: inline-block;
+  }
 
-    #descargar, #ordenar {
-      margin-top: 15px;
-      background-color: #1e7e34;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 10px;
-      box-shadow: var(--sombra);
-      cursor: pointer;
-      display: inline-block;
-    }
-
-    #descargar:hover, #ordenar:hover {
-      background-color: #155724;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #121212;
-        color: #e0e0e0;
-      }
-
-      input, button, li {
-        background-color: #1e1e1e;
-        color: #fff;
-        border-color: #444;
-      }
-
-      .borrar {
-        background-color: #ff5555;
-      }
-
-      .borrar:hover {
-        background-color: #cc0000;
-      }
-
-      #descargar, #ordenar {
-        background-color: #006400;
-      }
-
-      #descargar:hover, #ordenar:hover {
-        background-color: #004d00;
-      }
-    }
-  </style>
+  #descargar:hover, #ordenar:hover {
+    background-color: #155724;
+  }
+</style>
 </head>
 <body>
-  <h1>🛒 Lista Suprema de Compras</h1>
+  <h1>🛒 Lista de Compras</h1>
 
   <input type="text" id="itemInput" placeholder="Producto (ej: Pan)" />
   <input type="number" id="cantidadInput" placeholder="Cantidad (ej: 2)" />
@@ -196,12 +175,22 @@
     }
 
     function agregarItem() {
-      const producto = document.getElementById("itemInput").value.trim();
-      const cantidad = parseInt(document.getElementById("cantidadInput").value.trim());
-      const precioUnitario = parseFloat(document.getElementById("precioInput").value.trim());
+      console.log("✅ agregarItem() fue llamada");
 
-      if (!producto || isNaN(cantidad) || isNaN(precioUnitario)) {
+      const producto = document.getElementById("itemInput").value.trim();
+      const cantidadValor = document.getElementById("cantidadInput").value.trim();
+      const precioValor = document.getElementById("precioInput").value.trim();
+
+      if (!producto || cantidadValor === "" || precioValor === "") {
         alert("Completa producto, cantidad y precio válido.");
+        return;
+      }
+
+      const cantidad = parseInt(cantidadValor);
+      const precioUnitario = parseFloat(precioValor);
+
+      if (isNaN(cantidad) || isNaN(precioUnitario)) {
+        alert("Cantidad y precio deben ser números válidos.");
         return;
       }
 
@@ -322,3 +311,4 @@
   </script>
 </body>
 </html>
+
