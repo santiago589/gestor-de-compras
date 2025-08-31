@@ -1,0 +1,433 @@
+<!DOCTYPE html> 
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Compras</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ffffff" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --verde: #4caf50;
+      --verde-oscuro: #2e7d32;
+      --fondo: #ffffff;
+      --sombra: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--fondo);
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      color: #000000;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: var(--verde-oscuro);
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: var(--sombra);
+      transition: all 0.3s ease;
+    }
+
+    button {
+      background-color: var(--verde);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: var(--verde-oscuro);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: white;
+      margin: 8px auto;
+      padding: 12px;
+      width: 95%;
+      max-width: 400px;
+      border-radius: 12px;
+      box-shadow: var(--sombra);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    li:hover {
+      transform: scale(1.01);
+    }
+
+    .item-info {
+      flex: 1;
+      text-align: left;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .item-info.comprado {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .borrar {
+      background-color: red;
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--sombra);
+      padding: 0;
+    }
+
+    #total {
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 26px;
+      color: var(--verde-oscuro);
+      border: 2px solid var(--verde-oscuro);
+      padding: 12px 20px;
+      display: inline-block;
+      border-radius: 12px;
+      background-color: #f1fff3;
+      box-shadow: var(--sombra);
+    }
+
+    #descargar, #ordenar {
+      margin-top: 15px;
+      background-color: #1e7e34;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 10px;
+      box-shadow: var(--sombra);
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    #descargar:hover, #ordenar:hover {
+      background-color: #155724;
+    }
+
+    /* ---- CONTENEDOR FLEX ---- */
+    .contenedor-agregar {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .inputs-agregar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ---- CALCULADORA ---- */
+    #calculadora {
+      width: 200px;
+      padding: 10px;
+      border: 2px solid var(--verde-oscuro);
+      border-radius: 10px;
+      background-color: #f9fff9;
+      box-shadow: var(--sombra);
+      position: sticky;
+      top: 20px;
+    }
+
+    #calcDisplay {
+      width: 100%;
+      padding: 8px;
+      font-size: 18px;
+      text-align: right;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .calc-btn {
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid var(--verde-oscuro);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: var(--sombra);
+      color: black; /* ✅ Números y operadores negros */
+    }
+
+    .calc-btn:hover {
+      background: #e9f9e9;
+    }
+
+    .calc-btn.op {
+      background: #4caf50;
+      color: white;
+    }
+
+    .calc-btn.op:hover {
+      background: #2e7d32;
+    }
+
+    .calc-btn.clear {
+      grid-column: span 4;
+      background: red;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Lista de Compras</h1>
+
+  <!-- Inputs + Calculadora -->
+  <div class="contenedor-agregar">
+    <div class="inputs-agregar">
+      <input type="text" id="itemInput" placeholder="Producto (ej: Pan)" />
+      <input type="number" id="cantidadInput" placeholder="Cantidad (ej: 2)" />
+      <input type="number" id="precioInput" placeholder="Precio unitario (ej: 1200)" />
+      <button id="agregar" onclick="agregarItem()">Agregar</button>
+    </div>
+
+    <!-- CALCULADORA -->
+    <div id="calculadora">
+      <input type="text" id="calcDisplay" readonly />
+      <div class="calc-grid">
+        <button class="calc-btn" onclick="addCalc('7')">7</button>
+        <button class="calc-btn" onclick="addCalc('8')">8</button>
+        <button class="calc-btn" onclick="addCalc('9')">9</button>
+        <button class="calc-btn op" onclick="addCalc('/')">÷</button>
+
+        <button class="calc-btn" onclick="addCalc('4')">4</button>
+        <button class="calc-btn" onclick="addCalc('5')">5</button>
+        <button class="calc-btn" onclick="addCalc('6')">6</button>
+        <button class="calc-btn op" onclick="addCalc('*')">×</button>
+
+        <button class="calc-btn" onclick="addCalc('1')">1</button>
+        <button class="calc-btn" onclick="addCalc('2')">2</button>
+        <button class="calc-btn" onclick="addCalc('3')">3</button>
+        <button class="calc-btn op" onclick="addCalc('-')">−</button>
+
+        <button class="calc-btn" onclick="addCalc('0')">0</button>
+        <button class="calc-btn" onclick="addCalc('.')">.</button>
+        <button class="calc-btn op" onclick="calcResult()">=</button>
+        <button class="calc-btn op" onclick="addCalc('+')">+</button>
+
+        <button class="calc-btn clear" onclick="calcClear()">C</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="total">Total: $0</div>
+  <ul id="lista"></ul>
+
+  <!-- ✅ Ordenar junto a Descargar -->
+  <button id="descargar" onclick="descargarExcel()">📥 Descargar Excel</button>
+  <button id="ordenar" onclick="ordenarPorPrecio()">🔃 Ordenar por precio</button>
+
+  <script>
+    let total = 0;
+    let items = [];
+    let ordenAscendente = true;
+
+    window.onload = function () {
+      const guardado = localStorage.getItem("listaDeCompras");
+      if (guardado) {
+        items = JSON.parse(guardado);
+        items.forEach(item => {
+          mostrarItem(item);
+          total += item.precioTotal;
+        });
+        actualizarTotal();
+      }
+    };
+
+    function guardarLista() {
+      localStorage.setItem("listaDeCompras", JSON.stringify(items));
+    }
+
+    function agregarItem() {
+      const producto = document.getElementById("itemInput").value.trim();
+      const cantidadValor = document.getElementById("cantidadInput").value.trim();
+      const precioValor = document.getElementById("precioInput").value.trim();
+
+      if (!producto || cantidadValor === "" || precioValor === "") {
+        alert("Completa producto, cantidad y precio válido.");
+        return;
+      }
+
+      const cantidad = parseInt(cantidadValor);
+      const precioUnitario = parseFloat(precioValor);
+
+      if (isNaN(cantidad) || isNaN(precioUnitario)) {
+        alert("Cantidad y precio deben ser números válidos.");
+        return;
+      }
+
+      const precioTotal = precioUnitario * cantidad;
+      const nuevoItem = { producto, cantidad, precioUnitario, precioTotal, comprado: false };
+
+      items.push(nuevoItem);
+      guardarLista();
+      mostrarItem(nuevoItem);
+
+      total += precioTotal;
+      actualizarTotal();
+
+      document.getElementById("itemInput").value = "";
+      document.getElementById("cantidadInput").value = "";
+      document.getElementById("precioInput").value = "";
+      document.getElementById("itemInput").focus();
+    }
+
+    function mostrarItem(item) {
+      const li = document.createElement("li");
+      const info = document.createElement("div");
+      info.className = "item-info";
+      info.innerHTML = `${item.producto} × ${item.cantidad} — <strong>$${item.precioTotal}</strong>`;
+      if (item.comprado) info.classList.add("comprado");
+      info.onclick = () => {
+        item.comprado = !item.comprado;
+        info.classList.toggle("comprado");
+        guardarLista();
+      };
+
+      const btn = document.createElement("button");
+      btn.className = "borrar";
+      btn.textContent = "x";
+      btn.onclick = () => borrarItem(item, li);
+
+      li.appendChild(info);
+      li.appendChild(btn);
+      document.getElementById("lista").appendChild(li);
+    }
+
+    function borrarItem(item, elemento) {
+      total -= item.precioTotal;
+      actualizarTotal();
+      items = items.filter(i => i !== item);
+      guardarLista();
+      elemento.remove();
+    }
+
+    function actualizarTotal() {
+      document.getElementById("total").innerText = `Total: $${total.toFixed(0)}`;
+    }
+
+    function descargarExcel() {
+      if (items.length === 0) {
+        alert("Lista vacía");
+        return;
+      }
+      let csv = "Producto;Cantidad;Precio Unitario;Precio Total\n";
+      items.forEach(item => {
+        csv += `${item.producto};${item.cantidad};${item.precioUnitario};${item.precioTotal}\n`;
+      });
+      csv += "\n\nTotal;;;" + total + "\n";
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "lista_de_compras.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function ordenarPorPrecio() {
+      items.sort((a, b) => ordenAscendente ? a.precioTotal - b.precioTotal : b.precioTotal - a.precioTotal);
+      ordenAscendente = !ordenAscendente;
+      document.getElementById("lista").innerHTML = "";
+      total = 0;
+      items.forEach(item => {
+        mostrarItem(item);
+        total += item.precioTotal;
+      });
+      actualizarTotal();
+      guardarLista();
+    }
+
+    // Eventos Enter
+    document.getElementById("itemInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("cantidadInput").focus();
+      }
+    });
+    document.getElementById("cantidadInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("precioInput").focus();
+      }
+    });
+    document.getElementById("precioInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        agregarItem();
+      }
+    });
+
+    // Calculadora
+    function addCalc(valor) {
+      document.getElementById("calcDisplay").value += valor;
+    }
+    function calcClear() {
+      document.getElementById("calcDisplay").value = "";
+    }
+    function calcResult() {
+      try {
+        let exp = document.getElementById("calcDisplay").value;
+        if (/^[0-9+\-*/.()]+$/.test(exp)) {
+          document.getElementById("calcDisplay").value = eval(exp);
+        } else {
+          alert("Solo números y operadores válidos");
+        }
+      } catch {
+        alert("Operación inválida");
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('✅ Service Worker registrado'))
+        .catch(err => console.error('❌ Error registrando Service Worker:', err));
+    }
+  </script>
+</body>
+</html>
